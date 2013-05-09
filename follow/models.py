@@ -49,7 +49,7 @@ class FollowManager(models.Manager):
 
     def get_follows(self, model_or_obj_or_qs):
         """
-        Returns all the followers of a model, an object or a queryset.
+        Returns all the Follow objects associated with a certain model, object or queryset..
         """
         fname = self.fname(model_or_obj_or_qs)
         

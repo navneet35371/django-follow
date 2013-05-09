@@ -46,6 +46,13 @@ def is_following(user, obj):
     """
     return Follow.objects.is_following(user, obj)
 
+@register.filter
+def followers(user, obj):
+    return utils.get_follower_users_for_object(obj)
+
+@register.filter
+def follower_count(user, obj):
+    return utils.get_follower_count_for_object(obj)
 
 @register.tag
 def follow_form(parser, token):
