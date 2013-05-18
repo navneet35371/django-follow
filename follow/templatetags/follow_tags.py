@@ -1,5 +1,7 @@
 from django import template
 from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.models import ContentType
+
 from follow.models import Follow
 from follow import utils
 import re
@@ -78,3 +80,20 @@ class FollowFormNode(template.Node):
         ctx = {'object': self.obj.resolve(context)}
         return template.loader.render_to_string(self.template, ctx,
             context_instance=context)
+
+class FollowingList(template.Node):
+    def __init__(self, obj):
+        self.object = template.Variable(obj)
+
+    def render(self, context):
+        obj_instance = self.object.resolve(context)
+        content_type = ContentType.objects.get_for_model(obj_instance).pk
+        return reverse('get_vendor_followers', kwargs={'content_type_id': content_type, 'object_id': obj_instance.pk })
+
+@register.tag
+def vendor_follower_info_url(parser, token):
+    bits = token.split_contents()
+    if len(bits) != 2:
+        raise template.TemplateSyntaxError("Accepted format {% vendor_follower_info_url [instance] %}")
+    else:
+        return FollowingList(*bits[1:])

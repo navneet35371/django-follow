@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from follow.models import Follow
 from follow.registry import registry, model_map
+from actstream import action
+from django.utils.translation import ugettext_lazy as _
 
 def get_followers_for_object(instance):
     """
@@ -68,6 +70,7 @@ def toggle(user, obj):
     checks but just toggle it on / off. """
     if Follow.objects.is_following(user, obj):
         return unfollow(user, obj)
+    action.send(user, verb=_('started following'), target=obj)
     return follow(user, obj)    
 
 

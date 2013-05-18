@@ -3,6 +3,10 @@ from django.db.models.loading import cache
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponseServerError, HttpResponseBadRequest
 from follow.utils import follow as _follow, unfollow as _unfollow, toggle as _toggle
+from follow import utils
+from django.template import RequestContext
+from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 
 def check(func):
     """ 
@@ -50,3 +54,11 @@ def toggle(request, app, model, id):
     model = cache.get_model(app, model)
     obj = model.objects.get(pk=id)
     return _toggle(request.user, obj)
+
+def get_vendor_followers(request, content_type_id, object_id):
+    ctype = get_object_or_404(ContentType, pk=content_type_id)
+    obj = get_object_or_404(ctype.model_class(), pk=object_id)
+    
+    return render_to_response("follow/friend_list_all.html", {
+        "friends": utils.get_follower_users_for_object(obj),
+    }, context_instance=RequestContext(request))
