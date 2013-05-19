@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from follow.models import Follow
 from follow.registry import registry, model_map
-from actstream import action
+from actstream import action, actions
 from django.utils.translation import ugettext_lazy as _
 
 def get_followers_for_object(instance):
@@ -53,12 +53,14 @@ def register(model, field_name=None, related_name=None, lookup_method_name='get_
     
 def follow(user, obj):
     """ Make a user follow an object """
+    actions.follow(user, obj, actor_only=False)
     follow, created = Follow.objects.get_or_create(user, obj)
     return follow
 
 def unfollow(user, obj):
     """ Make a user unfollow an object """
     try:
+        actions.unfollow(user, obj)
         follow = Follow.objects.get_follows(obj).get(user=user)
         follow.delete()
         return follow 
@@ -70,7 +72,6 @@ def toggle(user, obj):
     checks but just toggle it on / off. """
     if Follow.objects.is_following(user, obj):
         return unfollow(user, obj)
-    action.send(user, verb=_('started following'), target=obj)
     return follow(user, obj)    
 
 
