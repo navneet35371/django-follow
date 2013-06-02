@@ -52,9 +52,14 @@ def is_following(user, obj):
 def followers(user, obj):
     return utils.get_follower_users_for_object(obj)
 
+
 @register.filter
 def follower_count(user, obj):
     return utils.get_follower_count_for_object(obj)
+
+@register.filter
+def vendor_following_count(user):
+    return utils.get_following_vendors_count_for_user(user)
 
 @register.tag
 def follow_form(parser, token):
@@ -97,3 +102,24 @@ def vendor_follower_info_url(parser, token):
         raise template.TemplateSyntaxError("Accepted format {% vendor_follower_info_url [instance] %}")
     else:
         return FollowingList(*bits[1:])
+
+class UserFollowingVendorsList(template.Node):
+    def __init__(self, user):
+        self.user = template.Variable(user)
+
+    def render(self, context):
+        user_instance = self.user.resolve(context)
+        content_type = ContentType.objects.get_for_model(user_instance).pk
+        return reverse('get_vendor_following', kwargs={'content_type_id': content_type, 'object_id': user_instance.pk })
+
+@register.tag
+def vendor_following_info_url(parser, token):
+    bits = token.split_contents()
+    if len(bits) != 2:
+        raise template.TemplateSyntaxError("Accepted format {% vendor_following_info_url [instance] %}")
+    else:
+        return UserFollowingVendorsList(*bits[1:])
+
+@register.filter
+def get_class_name(value):
+    return value.__class__.__name__

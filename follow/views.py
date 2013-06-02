@@ -7,6 +7,7 @@ from follow import utils
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
+from mezzanine.blog.models import BlogPost
 
 def check(func):
     """ 
@@ -60,5 +61,13 @@ def get_vendor_followers(request, content_type_id, object_id):
     obj = get_object_or_404(ctype.model_class(), pk=object_id)
     
     return render_to_response("follow/friend_list_all.html", {
-        "friends": utils.get_follower_users_for_object(obj),
+        "friends": utils.get_follower_users_for_vendor(obj),
+    }, context_instance=RequestContext(request))
+
+def get_vendor_following(request, content_type_id, object_id):
+    ctype = get_object_or_404(ContentType, pk=content_type_id)
+    user = get_object_or_404(ctype.model_class(), pk=object_id)
+    
+    return render_to_response("follow/vendor_following.html", {
+        "vendors": utils.get_following_vendors_for_user(user),
     }, context_instance=RequestContext(request))

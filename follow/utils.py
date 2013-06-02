@@ -4,6 +4,7 @@ from follow.models import Follow
 from follow.registry import registry, model_map
 from actstream import action, actions
 from django.utils.translation import ugettext_lazy as _
+from mezzanine import blog
 
 def get_followers_for_object(instance):
     """
@@ -11,7 +12,20 @@ def get_followers_for_object(instance):
     """
     return Follow.objects.get_follows(instance)
 
-def get_follower_users_for_object(instance):
+def get_following_vendors_for_user(user):
+    """
+    Returns all the users who follow objects associated with a certain model, object or queryset.
+    """
+    vendors = []
+    followObjects = Follow.objects.all().filter(user=user)
+    for followObject in followObjects:
+        if isinstance(followObject._get_target(), blog.models.BlogPost):
+            if followObject.target is not None:
+                vendors.append(followObject.target)
+
+    return vendors
+
+def get_follower_users_for_vendor(instance):
     """
     Returns all the users who follow objects associated with a certain model, object or queryset.
     """
@@ -27,6 +41,12 @@ def get_follower_count_for_object(instance):
     Returns number of all the users who follow objects associated with a certain model, object or queryset..
     """
     return Follow.objects.get_follows(instance).count()
+
+def get_following_vendors_count_for_user(user):
+    """
+    Returns all the Follow objects associated with a user.
+    """
+    return len(get_following_vendors_for_user(user))
 
 def register(model, field_name=None, related_name=None, lookup_method_name='get_follows'):
     """
