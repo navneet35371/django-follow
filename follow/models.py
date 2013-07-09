@@ -60,6 +60,21 @@ class FollowManager(models.Manager):
             return self.exclude(**{fname:None})
 
         return self.filter(**{fname:model_or_obj_or_qs})
+
+    def get_follows_subset(self, model_or_obj_or_qs, sIndex, lIndex):
+        """
+        Returns all the Follow objects associated with a certain model, object or queryset..
+        """
+        fname = self.fname(model_or_obj_or_qs)
+        
+        if isinstance(model_or_obj_or_qs, QuerySet):
+            return self.filter(**{'%s__in' % fname: model_or_obj_or_qs})[sIndex:lIndex]
+        
+        if inspect.isclass(model_or_obj_or_qs):
+            return self.exclude(**{fname:None})[sIndex:lIndex]
+            
+        return self.filter(**{fname:model_or_obj_or_qs})[sIndex:lIndex]
+
     
 class Follow(models.Model):
     """

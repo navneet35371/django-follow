@@ -64,10 +64,32 @@ def get_vendor_followers(request, content_type_id, object_id):
         "friends": utils.get_follower_users_for_vendor(obj),
     }, context_instance=RequestContext(request))
 
+def get_vendor_followers_subset(request, content_type_id, object_id, sIndex, lIndex):
+    ctype = get_object_or_404(ContentType, pk=content_type_id)
+    obj = get_object_or_404(ctype.model_class(), pk=object_id)
+    s = (int)(""+sIndex)
+    l = (int)(""+lIndex)
+    followers = utils.get_follower_users_subset_for_vendor(obj,s,l)
+
+    return render_to_response("follow/friend_list_all.html", {
+        "friends": followers,
+    }, context_instance=RequestContext(request))
+
 def get_vendor_following(request, content_type_id, object_id):
     ctype = get_object_or_404(ContentType, pk=content_type_id)
     user = get_object_or_404(ctype.model_class(), pk=object_id)
     
     return render_to_response("follow/vendor_following.html", {
         "vendors": utils.get_following_vendors_for_user(user),
+    }, context_instance=RequestContext(request))
+
+def get_vendor_following_subset(request, content_type_id, object_id, sIndex, lIndex):
+    ctype = get_object_or_404(ContentType, pk=content_type_id)
+    user = get_object_or_404(ctype.model_class(), pk=object_id)
+    s = (int)(""+sIndex)
+    l = (int)(""+lIndex)
+    vendors = utils.get_following_vendors_subset_for_user(user, s, l)
+
+    return render_to_response("follow/vendor_following.html", {
+        "vendors": vendors
     }, context_instance=RequestContext(request))

@@ -25,12 +25,36 @@ def get_following_vendors_for_user(user):
 
     return vendors
 
+def get_following_vendors_subset_for_user(user, sIndex, lIndex):
+    """
+    Returns all the users who follow objects associated with a certain model, object or queryset.
+    """
+    vendors = []
+    followObjects = Follow.objects.all().filter(user=user, target_blogpost__in=blog.models.BlogPost.objects.all())[sIndex:lIndex]
+    for followObject in followObjects:
+        if isinstance(followObject._get_target(), blog.models.BlogPost):
+            if followObject._get_target() is not None:
+                vendors.append(followObject._get_target())
+
+    return vendors
+
 def get_follower_users_for_vendor(instance):
     """
     Returns all the users who follow objects associated with a certain model, object or queryset.
     """
     followers = []
     followObjects = Follow.objects.get_follows(instance)
+    for followObject in followObjects:
+        if followObject.user is not None:
+            followers.append(followObject.user)
+    return followers
+
+def get_follower_users_subset_for_vendor(instance, sIndex, lIndex):
+    """
+    Returns all the users who follow objects associated with a certain model, object or queryset.
+    """
+    followers = []
+    followObjects = Follow.objects.get_follows_subset(instance, sIndex, lIndex)
     for followObject in followObjects:
         if followObject.user is not None:
             followers.append(followObject.user)
@@ -46,7 +70,7 @@ def get_following_vendors_count_for_user(user):
     """
     Returns all the Follow objects associated with a user.
     """
-    return len(get_following_vendors_for_user(user))
+    return Follow.objects.all().filter(user=user, target_blogpost__in=blog.models.BlogPost.objects.all()).count()
 
 def register(model, field_name=None, related_name=None, lookup_method_name='get_follows'):
     """
@@ -79,10 +103,15 @@ def follow(user, obj):
 
 def unfollow(user, obj):
     """ Make a user unfollow an object """
+    from django.contrib.contenttypes.models import ContentType
+    from actstream.models import Action
     try:
         actions.unfollow(user, obj)
         follow = Follow.objects.get_follows(obj).get(user=user)
         follow.delete()
+        ctype = ContentType.objects.get_for_model(user)
+        target_content_type = ContentType.objects.get_for_model(obj)
+        Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=u'started following', target_content_type=target_content_type, target_object_id = obj.id ).delete()
         return follow 
     except Follow.DoesNotExist:
         pass
