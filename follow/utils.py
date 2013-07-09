@@ -107,7 +107,7 @@ def unfollow(user, obj):
     from actstream.models import Action
     try:
         actions.unfollow(user, obj)
-        follow = Follow.objects.get_follows(obj).get(user=user)
+        follow = Follow.objects.get_follows(obj).filter(user=user)
         follow.delete()
         ctype = ContentType.objects.get_for_model(user)
         target_content_type = ContentType.objects.get_for_model(obj)
