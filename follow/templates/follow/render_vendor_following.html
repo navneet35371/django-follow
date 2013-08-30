@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load thumbnail %}
+{% load follow_tags %}
+{#% block title %}{% trans "vendors" %}{% endblock %#}
+
+{% block main %}
+
+<table>
+{% for vendor in vendors %}
+    <tr>
+    <td>
+        {% include 'actstream/render_actor.html' with actor=vendor %}
+    </td>
+    <td>
+      <a href='{{vendor.get_absolute_url}}'>{{ vendor }}</a>  
+    </td>
+        <td>
+        <div  class="follow-button-container action-follow-user {% if request.user|is_following:vendor %}following{% endif %}" style="position:relative;right:-50px;">
+        <a href="{% follow_url vendor %}" class="follow-btn form-button form-button-follow form-button-small form-button-default form-button-left-icon form-button-icon-follow" data-id="vendor_followers">Follow</a>
+
+        <a class="form-button form-button-following form-button-small form-button-light-and-grey form-button-left-icon form-button-icon-following" data-id="vendor_followers">Following</a>
+        
+        <a href="{% follow_url vendor %}" class="unfollow-btn form-button form-button-unfollow form-button-small form-button-red form-button-left-icon form-button-icon-unfollow" data-id="vendor_followers" >Unfollow</a>
+        </div> 
+        </td>
+
+    </tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}
