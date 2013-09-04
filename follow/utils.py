@@ -4,6 +4,7 @@ from follow.models import Follow
 from follow.registry import registry, model_map
 from actstream import action, actions
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from mezzanine import blog
 
 def get_followers_for_object(instance):
@@ -111,7 +112,7 @@ def unfollow(user, obj):
         follow.delete()
         ctype = ContentType.objects.get_for_model(user)
         target_content_type = ContentType.objects.get_for_model(obj)
-        Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=u'started following', target_content_type=target_content_type, target_object_id = obj.id ).delete()
+        Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=settings.FOLLOW_VERB, target_content_type=target_content_type, target_object_id = obj.id ).delete()
         return follow 
     except Follow.DoesNotExist:
         pass
