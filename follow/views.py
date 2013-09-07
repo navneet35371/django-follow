@@ -8,6 +8,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from mezzanine.blog.models import BlogPost
+from django.utils import simplejson
+from follow.models import Follow
 
 def check(func):
     """ 
@@ -18,7 +20,12 @@ def check(func):
             return HttpResponseBadRequest("Must be POST request.")
         follow = func(request, *args, **kwargs)
         if request.is_ajax():
-            return HttpResponse('ok')
+            if isinstance(follow, Follow) :
+                count = Follow.objects.get_follows(follow.target).count()
+            else:
+                count = Follow.objects.get_follows(follow).count()
+            return HttpResponse(simplejson.dumps(dict(success=True,
+                                                          count=count)))              
         try:
             if 'next' in request.GET:
                 return HttpResponseRedirect(request.GET.get('next'))

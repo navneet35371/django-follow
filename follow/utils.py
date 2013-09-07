@@ -113,7 +113,7 @@ def unfollow(user, obj):
         ctype = ContentType.objects.get_for_model(user)
         target_content_type = ContentType.objects.get_for_model(obj)
         Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=settings.FOLLOW_VERB, target_content_type=target_content_type, target_object_id = obj.id ).delete()
-        return follow 
+        return obj 
     except Follow.DoesNotExist:
         pass
 
