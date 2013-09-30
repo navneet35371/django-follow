@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db.models.fields.related import ManyToManyField, ForeignKey
-from follow.models import Follow
-from follow.registry import registry, model_map
+from .models import Follow
+from .registry import registry, model_map
 from actstream import action, actions
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings

@@ -1,15 +1,15 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.db.models.loading import cache
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponseServerError, HttpResponseBadRequest
-from follow.utils import follow as _follow, unfollow as _unfollow, toggle as _toggle
+from .utils import follow as _follow, unfollow as _unfollow, toggle as _toggle
 from follow import utils
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
-from mezzanine.blog.models import BlogPost
-from django.utils import simplejson
-from follow.models import Follow
+from .models import Follow
 
 def check(func):
     """ 
@@ -24,7 +24,7 @@ def check(func):
                 count = Follow.objects.get_follows(follow.target).count()
             else:
                 count = Follow.objects.get_follows(follow).count()
-            return HttpResponse(simplejson.dumps(dict(success=True,
+            return HttpResponse(json.dumps(dict(success=True,
                                                           count=count)))              
         try:
             if 'next' in request.GET:
