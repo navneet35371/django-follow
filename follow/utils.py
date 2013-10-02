@@ -5,7 +5,7 @@ from .registry import registry, model_map
 from actstream import action, actions
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from mezzanine import blog
+
 
 def get_followers_for_object(instance):
     """
