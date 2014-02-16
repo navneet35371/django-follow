@@ -13,16 +13,18 @@ def get_followers_for_object(instance):
     """
     return Follow.objects.get_follows(instance)
 
-def get_following_vendors_for_user(user):
+def get_following_vendors_for_user(user, target_field):
     """
     Returns all the users who follow objects associated with a certain model, object or queryset.
     """
     vendors = []
-    followObjects = Follow.objects.all().filter(user=user)
+    exclude = {}
+    if target_field:
+        exclude = {'%s__isnull' % target_field: True}
+    followObjects = Follow.objects.all().filter(user=user).exclude(**exclude)
     for followObject in followObjects:
-        if isinstance(followObject._get_target(), blog.models.BlogPost):
-            if followObject.target is not None:
-                vendors.append(followObject.target)
+        if followObject.target is not None:
+            vendors.append(followObject.target)
 
     return vendors
 

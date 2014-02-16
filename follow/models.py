@@ -52,7 +52,7 @@ class FollowManager(models.Manager):
         Returns all the Follow objects associated with a certain model, object or queryset..
         """
         fname = self.fname(model_or_obj_or_qs)
-        
+
         if isinstance(model_or_obj_or_qs, QuerySet):
             return self.filter(**{'%s__in' % fname: model_or_obj_or_qs})
         
