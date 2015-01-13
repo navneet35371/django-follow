@@ -12,12 +12,12 @@ register = template.Library()
 def follow_url(parser, token):
     """
     Returns either a link to follow or to unfollow.
-    
+
     Usage::
-        
+
         {% follow_url object %}
         {% follow_url object user %}
-        
+
     """
     bits = token.split_contents()
     return FollowLinkNode(*bits[1:])
@@ -26,10 +26,10 @@ class FollowLinkNode(template.Node):
     def __init__(self, obj, user=None):
         self.obj = template.Variable(obj)
         self.user = user
-        
+
     def render(self, context):
         obj = self.obj.resolve(context)
-        
+
         if not self.user:
             try:
                 user = context['request'].user
@@ -37,9 +37,9 @@ class FollowLinkNode(template.Node):
                 raise template.TemplateSyntaxError('There is no request object in the template context.')
         else:
             user = template.Variable(self.user).resolve(context)
-        
+
         return utils.follow_url(user, obj)
-        
+
 
 @register.filter
 def is_following(user, obj):
@@ -54,7 +54,7 @@ def followers(user, obj):
 
 
 @register.filter
-def follower_count(user, obj):
+def follower_count(obj):
     return utils.get_follower_count_for_object(obj)
 
 @register.filter
@@ -64,14 +64,14 @@ def vendor_following_count(user):
 @register.tag
 def follow_form(parser, token):
     """
-    Renders the following form. This can optionally take a path to a custom 
-    template. 
-    
+    Renders the following form. This can optionally take a path to a custom
+    template.
+
     Usage::
-    
+
         {% follow_form object %}
         {% follow_form object "app/follow_form.html" %}
-        
+
     """
     bits = token.split_contents()
     return FollowFormNode(*bits[1:])
@@ -80,7 +80,7 @@ class FollowFormNode(template.Node):
     def __init__(self, obj, tpl=None):
         self.obj = template.Variable(obj)
         self.template = tpl[1:-1] if tpl else 'follow/form.html'
-    
+
     def render(self, context):
         ctx = {'object': self.obj.resolve(context)}
         return template.loader.render_to_string(self.template, ctx,
@@ -144,7 +144,7 @@ class FollowingListSubset(AsNode):
         sIndex = self.args[1].resolve(context)
         lIndex = self.args[2].resolve(context)
         content_type = ContentType.objects.get_for_model(obj_instance).pk
-        
+
         return reverse('get_vendor_followers_subset', kwargs={
             'content_type_id': content_type, 'object_id': obj_instance.pk, 'sIndex':sIndex, 'lIndex':lIndex})
 
@@ -181,7 +181,7 @@ class UserFollowingVendorsListSubset(AsNode):
         sIndex = self.args[1].resolve(context)
         lIndex = self.args[2].resolve(context)
         content_type = ContentType.objects.get_for_model(obj_instance).pk
-        
+
         return reverse('get_vendor_following_subset', kwargs={
             'content_type_id': content_type, 'object_id': obj_instance.pk, 'sIndex':sIndex, 'lIndex':lIndex})
 
