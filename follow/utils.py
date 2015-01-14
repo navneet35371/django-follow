@@ -41,7 +41,7 @@ def get_following_vendors_subset_for_user(user, sIndex, lIndex):
 
     return vendors
 
-def get_follower_users_for_vendor(instance):
+def get_follower_users_for_object(instance):
     """
     Returns all the users who follow objects associated with a certain model, object or queryset.
     """
@@ -78,26 +78,26 @@ def get_following_vendors_count_for_user(user):
 def register(model, field_name=None, related_name=None, lookup_method_name='get_follows'):
     """
     This registers any model class to be follow-able.
-    
+
     """
     if model in registry:
         return
 
     registry.append(model)
-    
+
     if not field_name:
         field_name = 'target_%s' % model._meta.module_name
-    
+
     if not related_name:
         related_name = 'follow_%s' % model._meta.module_name
-    
+
     field = ForeignKey(model, related_name=related_name, null=True,
         blank=True, db_index=True)
-    
+
     field.contribute_to_class(Follow, field_name)
     setattr(model, lookup_method_name, get_followers_for_object)
     model_map[model] = [related_name, field_name]
-    
+
 def follow(user, obj):
     """ Make a user follow an object """
     actions.follow(user, obj, actor_only=False)
@@ -115,7 +115,7 @@ def unfollow(user, obj):
         ctype = ContentType.objects.get_for_model(user)
         target_content_type = ContentType.objects.get_for_model(obj)
         Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=settings.FOLLOW_VERB, target_content_type=target_content_type, target_object_id = obj.id ).delete()
-        return obj 
+        return obj
     except Follow.DoesNotExist:
         pass
 
@@ -124,7 +124,7 @@ def toggle(user, obj):
     checks but just toggle it on / off. """
     if Follow.objects.is_following(user, obj):
         return unfollow(user, obj)
-    return follow(user, obj)    
+    return follow(user, obj)
 
 
 def follow_link(object):

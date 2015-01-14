@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import Follow
 
 def check(func):
-    """ 
+    """
     Check the permissions, http method and login state.
     """
     def iCheck(request, *args, **kwargs):
@@ -25,7 +25,7 @@ def check(func):
             else:
                 count = Follow.objects.get_follows(follow).count()
             return HttpResponse(json.dumps(dict(success=True,
-                                                          count=count)))              
+                                                          count=count)))
         try:
             if 'next' in request.GET:
                 return HttpResponseRedirect(request.GET.get('next'))
@@ -68,11 +68,11 @@ def get_vendor_followers(request, content_type_id, object_id):
     obj = get_object_or_404(ctype.model_class(), pk=object_id)
     if request.is_ajax():
         return render_to_response("follow/friend_list_all.html", {
-            "friends": utils.get_follower_users_for_vendor(obj),
+            "friends": utils.get_follower_users_for_object(obj),
         }, context_instance=RequestContext(request))
     else:
         return render_to_response("follow/render_friend_list_all.html", {
-            "friends": utils.get_follower_users_for_vendor(obj),
+            "friends": utils.get_follower_users_for_object(obj),
         }, context_instance=RequestContext(request))
 
 def get_vendor_followers_subset(request, content_type_id, object_id, sIndex, lIndex):
@@ -88,7 +88,7 @@ def get_vendor_followers_subset(request, content_type_id, object_id, sIndex, lIn
     else:
         return render_to_response("follow/render_friend_list_all.html", {
             "friends": followers,
-        }, context_instance=RequestContext(request))       
+        }, context_instance=RequestContext(request))
 
 def get_vendor_following(request, content_type_id, object_id):
     ctype = get_object_or_404(ContentType, pk=content_type_id)
@@ -100,7 +100,7 @@ def get_vendor_following(request, content_type_id, object_id):
     else:
         return render_to_response("follow/render_vendor_following.html", {
             "vendors": utils.get_following_vendors_for_user(user),
-        }, context_instance=RequestContext(request))       
+        }, context_instance=RequestContext(request))
 
 def get_vendor_following_subset(request, content_type_id, object_id, sIndex, lIndex):
     ctype = get_object_or_404(ContentType, pk=content_type_id)
@@ -115,4 +115,4 @@ def get_vendor_following_subset(request, content_type_id, object_id, sIndex, lIn
     else:
         return render_to_response("follow/render_vendor_following.html", {
             "vendors": vendors
-        }, context_instance=RequestContext(request))        
+        }, context_instance=RequestContext(request))
