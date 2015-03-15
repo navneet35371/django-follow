@@ -9,6 +9,8 @@ from follow import utils
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+
 from .models import Follow
 
 def check(func):
@@ -61,7 +63,12 @@ def unfollow(request, app, model, id):
 def toggle(request, app, model, id):
     model = cache.get_model(app, model)
     obj = model.objects.get(pk=id)
-    return _toggle(request.user, obj)
+    status = _toggle(request.user, obj)
+    if status.__class__.__name__ == 'Follow':
+        messages.success(request, 'You are now following %s and will receive regular updates on their activity.' % obj)
+    else:
+        messages.warning(request, 'You are no longer following %s and will not receive any updates on their activity.' % obj)
+    return status
 
 def get_vendor_followers(request, content_type_id, object_id):
     ctype = get_object_or_404(ContentType, pk=content_type_id)
