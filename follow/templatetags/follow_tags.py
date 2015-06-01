@@ -22,6 +22,7 @@ def follow_url(parser, token):
     bits = token.split_contents()
     return FollowLinkNode(*bits[1:])
 
+
 class FollowLinkNode(template.Node):
     def __init__(self, obj, user=None):
         self.obj = template.Variable(obj)
