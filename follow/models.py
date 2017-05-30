@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models.signals import post_save, post_delete
@@ -28,6 +29,7 @@ class FollowManager(models.Manager):
         """
         follow = Follow(user=user)
         follow.target = obj
+        follow.site=Site.objects.get_current()
         follow.save()
         return follow
 
@@ -56,8 +58,18 @@ class FollowManager(models.Manager):
         from people.models import PeopleWhiteLabel, UserProfile
         people = None
         if settings.SITE_ID > 1:
-            white_label_people = PeopleWhiteLabel.objects.filter(site=settings.SITE_ID).values_list('id', flat=True)
-            people = UserProfile.objects.filter(white_label_site__in=white_label_people).values_list('user', flat=True)
+            white_label_people = PeopleWhiteLabel.objects.filter(
+                site_id=settings.SITE_ID
+            ).values_list(
+                'id',
+                flat=True
+            )
+            people = UserProfile.objects.filter(
+                white_label_site__in=white_label_people
+            ).values_list(
+                'user',
+                flat=True
+            )
 
         fname = self.fname(model_or_obj_or_qs)
         if isinstance(model_or_obj_or_qs, QuerySet):
@@ -67,8 +79,11 @@ class FollowManager(models.Manager):
             return self.exclude(**{fname:None})
 
         if people:
-            return self.filter(**{fname:model_or_obj_or_qs}).filter(user__in=people)
-        return self.filter(**{fname:model_or_obj_or_qs})
+            return self.filter(**{fname:model_or_obj_or_qs}).filter(
+                user__in=people,
+                site_id=settings.SITE_ID
+            )
+        return self.filter(**{fname:model_or_obj_or_qs}).filter(site_id=settings.SITE_ID)
 
     def get_follows_subset(self, model_or_obj_or_qs, sIndex, lIndex):
         """
@@ -91,6 +106,9 @@ class Follow(models.Model):
     object is accessible through `Follow.target`.
     """
     user = models.ForeignKey(User, related_name='following')
+
+    site = models.ForeignKey(Site, default=settings.SITE_ID,
+        verbose_name='site')
 
     datetime = models.DateTimeField(auto_now_add=True)
 

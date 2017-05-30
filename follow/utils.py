@@ -13,6 +13,7 @@ def get_followers_for_object(instance):
     """
     return Follow.objects.get_follows(instance)
 
+
 def get_following_vendors_for_user(user, target_field):
     """
     Returns all the users who follow objects associated with a certain model, object or queryset.
@@ -21,12 +22,16 @@ def get_following_vendors_for_user(user, target_field):
     exclude = {}
     if target_field:
         exclude = {'%s__isnull' % target_field: True}
-    followObjects = Follow.objects.all().filter(user=user).exclude(**exclude)
+    followObjects = Follow.objects.all().filter(
+        user=user,
+        site_id=settings.SITE_ID
+    ).exclude(**exclude)
     for followObject in followObjects:
         if followObject.target is not None:
             vendors.append(followObject.target)
 
     return vendors
+
 
 def get_following_vendors_subset_for_user(user, sIndex, lIndex):
     """
@@ -114,7 +119,14 @@ def unfollow(user, obj):
         follow.delete()
         ctype = ContentType.objects.get_for_model(user)
         target_content_type = ContentType.objects.get_for_model(obj)
-        Action.objects.all().filter(actor_content_type=ctype, actor_object_id=user.id, verb=settings.FOLLOW_VERB, target_content_type=target_content_type, target_object_id = obj.id ).delete()
+        Action.objects.all().filter(
+            actor_content_type=ctype,
+            actor_object_id=user.id,
+            verb=settings.FOLLOW_VERB,
+            target_content_type=target_content_type,
+            target_object_id=obj.id,
+            site_id=settings.SITE_ID
+        ).delete()
         return obj
     except Follow.DoesNotExist:
         pass
