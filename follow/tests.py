@@ -3,8 +3,8 @@ from django.contrib.auth.models import User, AnonymousUser, Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from follow import signals, utils
-from follow.models import Follow
-from follow.utils import register
+from .models import Follow
+from .utils import register
 
 register(User)
 register(Group)

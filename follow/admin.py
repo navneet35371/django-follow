@@ -1,4 +1,4 @@
-from follow.models import Follow
+from .models import Follow
 from django.contrib import admin
 
 admin.site.register(Follow)
