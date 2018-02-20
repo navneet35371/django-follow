@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from .models import Follow
 from .registry import registry, model_map
