@@ -11,7 +11,7 @@ import inspect
 
 class FollowManager(models.Manager):
     def fname(self, model_or_obj_or_qs):
-        """ 
+        """
         Return the field name on the :class:`Follow` model for ``model_or_obj_or_qs``.
         """
         if isinstance(model_or_obj_or_qs, QuerySet):
@@ -25,7 +25,7 @@ class FollowManager(models.Manager):
         """
         Create a new follow link between a user and an object
         of a registered model type.
-        
+
         """
         follow = Follow(user=user)
         follow.target = obj
@@ -34,9 +34,9 @@ class FollowManager(models.Manager):
         return follow
 
     def get_or_create(self, user, obj, **kwargs):
-        """ 
-        Almost the same as `FollowManager.objects.create` - behaves the same 
-        as the normal `get_or_create` methods in django though. 
+        """
+        Almost the same as `FollowManager.objects.create` - behaves the same
+        as the normal `get_or_create` methods in django though.
 
         Returns a tuple with the `Follow` and either `True` or `False`
 
@@ -105,10 +105,10 @@ class Follow(models.Model):
     This model allows a user to follow any kind of object. The followed
     object is accessible through `Follow.target`.
     """
-    user = models.ForeignKey(User, related_name='following')
+    user = models.ForeignKey(User, related_name='following',on_delete=models.DO_NOTHING)
 
     site = models.ForeignKey(Site, default=settings.SITE_ID,
-        verbose_name='site')
+        verbose_name='site',on_delete=models.DO_NOTHING)
 
     datetime = models.DateTimeField(auto_now_add=True)
 
